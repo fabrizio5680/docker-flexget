@@ -8,8 +8,6 @@ RUN apt-get update -qq && \
     apt-get autoremove && \
     apt-get autoclean
 
-RUN pip install -I requests[security] flexget transmissionrpc
-
 RUN apt-get purge -q -y python-dev libffi-dev libssl-dev && \
     apt-get -y autoremove
 
