@@ -33,3 +33,15 @@ docker run -d --name flexget -v /apps/flexget/:/home/flexget/.flexget:rw pfragos
   * https://docs.docker.com
   * http://flexget.com
   * https://registry.hub.docker.com/u/pfragoso/docker-flexget/
+
+
+
+## Fab's Reference
+
+## instructions
+docker build -t <image_name> .
+docker run --name <container_name> -v /home/flexget <image_name> true
+docker run --rm --volumes-from <container_name> <image_name>
+
+## ssh into container 
+docker exec -i -t <container_id> bash

@@ -20,5 +20,7 @@ ENV HOME /home/flexget
 ENV LANG C.UTF-8
 
 RUN mkdir /home/flexget/.flexget
+COPY ./config.yml /home/flexget/.flexget/config.yml
+COPY ./secrets.yml /home/flexget/.flexget/secrets.yml
 CMD /usr/local/bin/flexget daemon start
 

@@ -1,0 +1,181 @@
+secrets: secrets.yml
+templates:
+  globals:
+    verify_ssl_certificates: false
+    urlrewrite:
+      torcache-https:
+        regexp: "https:\\/\\/torcache\\.net\\/torrent\\/(?P<id>.*)\\.torrent\\?title=(?P<title>.*)"
+        format: "https://torcache.net/torrent/\\g<id>.torrent"
+      torcache-http:
+        regexp: "http:\\/\\/torcache\\.net\\/torrent\\/(?P<id>.*)\\.torrent\\?title=(?P<title>.*)"
+        format: "http://torcache.net/torrent/\\g<id>.torrent"
+    headers:
+      User-Agent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36'
+      Referer: 'https://torcache.net/'
+      Accept-Encoding: 'deflate, gzip'
+    domain_delay:
+      torcache.net: 5 seconds
+    retry_failed:
+      retry_time: 10 seconds
+      retry_time_multiplier: 1
+      max_retries: 15
+  
+  inputs:
+    magnets: true
+    inputs:
+      # - rss:
+      #     url: 'http://torrentz.eu/feed_verified?q=tv'
+      #     silent: true
+      # - rss:
+      #     url: 'http://torrentz.me/feed_verified?q=tv'
+      #     silent: true
+      - rss:
+          url: 'http://www.torlock.com/television/rss.xml'
+          silent: true
+      - rss:
+          url: 'http://showrss.info/feeds/all.rss'
+          silent: true
+  # outputs:
+    # pushbullet:
+    #   apikey: '{{ secrets.pushbullet.apikey }}'
+    #   title: '{{tvdb_series_name}} {{tvdb_ep_id}}'
+    #   body: |-
+    #     {{title}}
+
+    #     Size {{content_size}}MB
+    #     Rating {{tvdb_rating}}
+        # Quality {{quality}}
+  filters:
+    regexp:
+      reject:
+        - '(?i)[ .]cam[ .]'
+        - '(?i)[ .]bdscr[ .]'
+        - '(?i)[ .]dvdscr[ .]'
+        - '(?i)[ .]preair[ .]'
+        - '(?i)[ .]ppvrip[ .]'
+        - '(?i)[ .]r5[ .]'
+        - '(?i)[ .]tc[ .]'
+        - '(?i)[ .]ts[ .]'
+        - '(?i)[ .]ecc[ .]'
+        - '(?i)[ .]avc[ .]'
+        - '(?i)[ .]qebs[ .]'
+        - "\\b(duo|tri|quadri|tetra|penta)logy\\b":
+            from: title
+        - "\\b3-?D\\b":
+            from: title
+        - "\\btrailer\\b":
+            from: title
+        - "\\bR5\\b":
+            from: title
+        - "\\bWEBSCR\\b":
+            from: title
+        - "\\bscreener\\b":
+            from: title
+        - "\\bTS\\b":
+            from: title
+        - "\\bCam\\b":
+            from: title
+        - TrTd TeaM:
+            from: title
+        - "\\bASAP\\b":
+            from: title
+        - the.day.of.the.doctor
+    content_filter:
+      require:
+        - '*.avi'
+        - '*.mkv'
+        - '*.mp4'
+  site-integrations:
+    thetvdb_lookup: true
+    trakt_lookup: true
+    trakt_add:
+      username: '{{ secrets.trakt.username }}'
+      password: '{{ secrets.trakt.password }}'
+      list: '{{ secrets.trakt.collected_list }}'
+  movie-queue-request:
+    accept_all: true
+    seen: local
+    retry_failed:
+      max_retries: 10
+    movie_queue: add
+    trakt_list:
+      username: '{{ secrets.trakt.username }}'
+      password: '{{ secrets.trakt.password }}'
+      list: '{{ secrets.trakt.movie_list }}'
+      type: movies
+    imdb_list:
+      list: watchlist
+      user_id: '{{ secrets.imdb.user }}'
+  movie_search_request:
+    template: movies
+    torrent_alive: true
+    # pushbullet:
+    #   apikey: '{{ secrets.pushbullet.apikey }}'
+    #   title: '{{tmdb_name}} {{imdb_score}}'
+    #   body: 'Size: {{content_size}}MB'
+    discover:
+      what:
+        - emit_movie_queue: true
+      from:
+        - search_rss: https://kickass.unblocked.la/usearch/{{search_term}}/?rss=1
+        - piratebay:
+            category: highres movies
+            sort_by: seeds
+        # - torrentz: verified
+tasks:
+  tvshows:
+    priority: 1
+    make_rss: "/home/flexget/flexget.rss"
+    template:
+      - inputs
+      - filters
+      - site-integrations
+      # - outputs
+
+    set_series_begin: true
+    torrent_alive: true
+    discover:
+      what:
+        - emit_series:
+            backfill: true
+            from_start: true
+      from:
+        - search_rss: https://kickass.unblocked.la/usearch/{{search_term}}/?rss=1
+        # - torrentz: good
+        - piratebay:
+            category: highres tv
+            sort_by: date
+    series:
+      settings:
+        main:
+          upgrade: true
+          identified_by: ep
+      main:
+        - Limitless:
+            begin: S01E01
+            timeframe: 12 hours
+            quality: 720p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '295743'
+        - Strictly Come Dancing:
+            begin: S13E01
+            timeframe: 12 hours
+            quality: 480p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '83127'
+        - The Great British Bake Off:
+            begin: S06E09
+            timeframe: 12 hours
+            quality: 720p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '184871'
+        - Fargo:
+            begin: S02E01
+            timeframe: 24 hours
+            quality: 720p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '269613'
