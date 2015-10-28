@@ -143,11 +143,8 @@ tasks:
             backfill: true
             from_start: true
       from:
-        - search_rss: https://kickass.unblocked.la/usearch/{{search_term}}/?rss=1
-        # - torrentz: good
-        - piratebay:
-            category: highres tv
-            sort_by: date
+        - torrentz: good
+
     series:
       settings:
         main:

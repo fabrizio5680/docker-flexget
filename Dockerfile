@@ -11,6 +11,8 @@ RUN apt-get update -qq && \
 RUN apt-get purge -q -y python-dev libffi-dev libssl-dev && \
     apt-get -y autoremove
 
+RUN pip install requests[security]
+
 RUN pip install flexget --upgrade
 
 RUN mkdir -p /home/flexget/.flexget
