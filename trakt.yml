@@ -1,0 +1,124 @@
+templates:
+  global:
+    torrent_alive: yes #number of seeders needed to accept
+  download-movie:
+    discover:
+      what:
+        - emit_movie_queue: yes
+      from:
+        - piratebay:
+            category: 207 #HD - Movies #originally: highres movies
+            sort_by: seeds
+    movie_queue: yes
+    trakt_remove:
+      username: ####
+      password: ####
+      api_key: ####
+      list: watchlist
+
+tasks:
+  fill_movie_queue:
+    priority: 2
+    trakt_list:
+      username: ####
+      password: ####
+      api_key: ####
+      movies: watchlist
+      strip_dates: yes
+    queue_movies: yes
+    accept_all: yes
+
+  get_movies_NO_YIFY_1080p: #Can't find subs for YIFY
+    priority: 3
+    regexp:
+      reject:
+        - YIFY
+    content_size:
+      max: 15360
+      min: 1024
+    assume_quality: 1080p bluray #in case of REALLY long titles
+    quality: 1080p+ bluray+
+    queue_movies: yes
+    template: download-movie
+
+  get_movies_1080p: #probably no subs but i like 1080p more
+    priority: 4
+    content_size:
+      max: 15360
+      min: 1024
+    assume_quality: 1080p bluray #in case of REALLY long titles
+    quality: 1080p+ bluray+
+    queue_movies: yes
+    template: download-movie
+
+  get_movies_NO_YIFY_720p: #Accept lower quality as 1080p seems unavailable
+    priority: 5
+    content_size:
+      max: 15360
+      min: 1024
+    assume_quality: 720p bluray #in case of REALLY long titles
+    regexp:
+      reject:
+        - YIFY
+    quality: 720p+ bluray+
+    queue_movies: yes
+    template: download-movie
+
+  get_movies_720p: #Playing hard to get? Huh, Punk!
+    priority: 6
+    content_size:
+      max: 15360
+      min: 1024
+    assume_quality: 720p bluray #in case of REALLY long titles
+    quality: 720p+ bluray+
+    queue_movies: yes
+    template: download-movie
+
+  get_series:
+    priority: 7
+    content_size:
+      max: 3072
+      min: 750
+    regexp:
+      reject:
+        - FASTSUB #French
+        - VOSTFR #French
+        - Subtitulado #Spanish
+        - Special-Wicked #Special trailer episodes from Once Upon a Time
+    content_filter:
+      reject:
+        - '*.rar' #Damn you satan!
+        - '*.zip' #Damn you satan!
+        - '*.avi' #Uhgg Jak!
+    discover:
+      what:
+        - trakt_list:
+            username: ####
+            password: ####
+            api_key: ####
+            custom: following
+        - listdir: /shares/Media/Series
+      from:
+        - piratebay:
+            category: 208 #HD - TV Shows #was "tv"
+            sort_by: seeds
+    configure_series:
+      from:
+        trakt_list:
+          username: '{{ secrets.trakt.username }}'
+          password: '{{ secrets.trakt.password }}'
+          list: Following
+        listdir: /shares/Media/Series
+      settings:
+        timeframe: 12 hours
+        quality: 720p+
+        target: 1080p hdtv+ h264
+    trakt_watched_lookup:
+      username: '{{ secrets.trakt.username }}'
+      password: '{{ secrets.trakt.password }}'
+    trakt_collected_lookup:
+      username: '{{ secrets.trakt.username }}'
+      password: '{{ secrets.trakt.password }}'
+    if:
+#      - trakt_watched: reject
+      - trakt_in_collection: reject

@@ -125,7 +125,10 @@ templates:
 tasks:
   tvshows:
     priority: 1
-    make_rss: "/home/flexget/flexget.rss"
+    make_rss:
+      file: "/home/flexget/flexget.rss"
+      link:
+        - url
     template:
       - inputs
       - filters
