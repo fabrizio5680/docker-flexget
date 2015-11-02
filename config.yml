@@ -23,28 +23,18 @@ templates:
   inputs:
     magnets: true
     inputs:
-      # - rss:
-      #     url: 'http://torrentz.eu/feed_verified?q=tv'
-      #     silent: true
-      # - rss:
-      #     url: 'http://torrentz.me/feed_verified?q=tv'
-      #     silent: true
+       - rss:
+           url: 'http://torrentz.eu/feed_verified?q=tv'
+           silent: true
+       - rss:
+           url: 'http://torrentz.me/feed_verified?q=tv'
+           silent: true
       - rss:
           url: 'http://www.torlock.com/television/rss.xml'
           silent: true
       - rss:
           url: 'http://showrss.info/feeds/all.rss'
           silent: true
-  # outputs:
-    # pushbullet:
-    #   apikey: '{{ secrets.pushbullet.apikey }}'
-    #   title: '{{tvdb_series_name}} {{tvdb_ep_id}}'
-    #   body: |-
-    #     {{title}}
-
-    #     Size {{content_size}}MB
-    #     Rating {{tvdb_rating}}
-        # Quality {{quality}}
   filters:
     regexp:
       reject:
@@ -85,48 +75,11 @@ templates:
         - '*.avi'
         - '*.mkv'
         - '*.mp4'
-  site-integrations:
-    thetvdb_lookup: true
-    trakt_lookup: true
-    trakt_add:
-      username: '{{ secrets.trakt.username }}'
-      password: '{{ secrets.trakt.password }}'
-      list: '{{ secrets.trakt.collected_list }}'
-  movie-queue-request:
-    accept_all: true
-    seen: local
-    retry_failed:
-      max_retries: 10
-    movie_queue: add
-    trakt_list:
-      username: '{{ secrets.trakt.username }}'
-      password: '{{ secrets.trakt.password }}'
-      list: '{{ secrets.trakt.movie_list }}'
-      type: movies
-    imdb_list:
-      list: watchlist
-      user_id: '{{ secrets.imdb.user }}'
-  movie_search_request:
-    template: movies
-    torrent_alive: true
-    # pushbullet:
-    #   apikey: '{{ secrets.pushbullet.apikey }}'
-    #   title: '{{tmdb_name}} {{imdb_score}}'
-    #   body: 'Size: {{content_size}}MB'
-    discover:
-      what:
-        - emit_movie_queue: true
-      from:
-        - search_rss: https://kickass.unblocked.la/usearch/{{search_term}}/?rss=1
-        - piratebay:
-            category: highres movies
-            sort_by: seeds
-        # - torrentz: verified
 tasks:
   tvshows:
     priority: 1
     make_rss:
-      file: "/home/flexget/flexget.rss"
+      file: "./flexget.rss"
       link:
         - url
     template:
