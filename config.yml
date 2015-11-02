@@ -79,7 +79,6 @@ tasks:
     template:
       - inputs
       - filters
-
     set_series_begin: true
     torrent_alive: true
     discover:
@@ -88,8 +87,11 @@ tasks:
             backfill: true
             from_start: true
       from:
+        - search_rss: https://kat.cr/usearch/x264%20-720p%20-1080p%20user:ettv%20category:tv/?rss=1
         - torrentz: good
-
+        - piratebay:
+            category: highres tv
+            sort_by: date
     series:
       settings:
         main:
@@ -98,29 +100,6 @@ tasks:
       main:
         - Limitless:
             begin: S01E01
-            timeframe: 12 hours
-            quality: 720p+
-            target: 1080p hdtv+ h264
+            quality: 480p+
             set:
               tvdb_id: '295743'
-        - Strictly Come Dancing:
-            begin: S13E01
-            timeframe: 12 hours
-            quality: 480p+
-            target: 1080p hdtv+ h264
-            set:
-              tvdb_id: '83127'
-        - The Great British Bake Off:
-            begin: S06E09
-            timeframe: 12 hours
-            quality: 720p+
-            target: 1080p hdtv+ h264
-            set:
-              tvdb_id: '184871'
-        - Fargo:
-            begin: S02E01
-            timeframe: 24 hours
-            quality: 720p+
-            target: 1080p hdtv+ h264
-            set:
-              tvdb_id: '269613'
