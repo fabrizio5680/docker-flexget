@@ -19,16 +19,10 @@ templates:
       retry_time: 10 seconds
       retry_time_multiplier: 1
       max_retries: 15
-  
+
   inputs:
     magnets: true
     inputs:
-       - rss:
-           url: 'http://torrentz.eu/feed_verified?q=tv'
-           silent: true
-       - rss:
-           url: 'http://torrentz.me/feed_verified?q=tv'
-           silent: true
       - rss:
           url: 'http://www.torlock.com/television/rss.xml'
           silent: true
@@ -85,8 +79,6 @@ tasks:
     template:
       - inputs
       - filters
-      - site-integrations
-      # - outputs
 
     set_series_begin: true
     torrent_alive: true
