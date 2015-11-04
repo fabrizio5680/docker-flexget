@@ -24,7 +24,12 @@ templates:
 
   inputs:
     magnets: true
+    content_size:
+      min: 700
+      max: 10000
+      strict: no
     inputs:
+      - rss: https://www.torrentbytes.net/rss.php?passkey=58f184cea1b3c5aa5e99054bdc64eaa1&username=smulhall&38&5&37&limit=200&SSL=1&direct=1
       - rss:
           url: 'http://www.torlock.com/television/rss.xml'
           silent: true
@@ -106,7 +111,7 @@ tasks:
             category: x264 1080p
         - kat:
             category: tv
-#        - torrentz: good
+        - torrentz: good
 
     download:
       path: ./temp
