@@ -15,6 +15,8 @@ templates:
       Accept-Encoding: 'deflate, gzip'
     domain_delay:
       torcache.net: 5 seconds
+      torrentz.eu: 10 seconds
+      beyondhd.me: 10 seconds
     retry_failed:
       retry_time: 10 seconds
       retry_time_multiplier: 1
@@ -72,34 +74,39 @@ templates:
 tasks:
   tvshows:
     priority: 1
-    make_rss:
-      file: "./flexget.rss"
-      link:
-        - url
     template:
       - inputs
       - filters
-    set_series_begin: true
-    torrent_alive: true
+    torrent_alive: yes
+    configure_series:
+      from:
+        trakt_list:
+          username: '{{ secrets.trakt.username }}'
+          password: '{{ secrets.trakt.password }}'
+          list: watchlist
+          type: shows
+          strip_dates: yes
+      settings:
+        timeframe: 24 hours
+        quality: 720p webdl+ h264
+        target: 1080p webdl+ h264
+        upgrade: true
+        identified_by: ep
+
+    set_series_begin: yes
+
     discover:
       what:
-        - emit_series:
-            backfill: true
-            from_start: true
+        - trakt_emit:
+            username: '{{ secrets.trakt.username }}'
+            password: '{{ secrets.trakt.password }}'
+            list: watchlist
       from:
-        - search_rss: https://kat.cr/usearch/x264%20-720p%20-1080p%20user:ettv%20category:tv/?rss=1
-        - torrentz: good
-        - piratebay:
-            category: highres tv
-            sort_by: date
-    series:
-      settings:
-        main:
-          upgrade: true
-          identified_by: ep
-      main:
-        - Limitless:
-            begin: S01E01
-            quality: 480p+
-            set:
-              tvdb_id: '295743'
+        - rarbg:
+            category: x264 1080p
+        - kat:
+            category: tv
+#        - torrentz: good
+
+    download:
+      path: ./temp
