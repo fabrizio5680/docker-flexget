@@ -29,7 +29,7 @@ templates:
       max: 10000
       strict: no
     inputs:
-      - rss: https://www.torrentbytes.net/rss.php?passkey=58f184cea1b3c5aa5e99054bdc64eaa1&username=smulhall&38&5&37&limit=200&SSL=1&direct=1
+#      - rss: https://www.torrentbytes.net/rss.php?passkey=58f184cea1b3c5aa5e99054bdc64eaa1&username=smulhall&38&5&37&limit=200&SSL=1&direct=1
       - rss:
           url: 'http://www.torlock.com/television/rss.xml'
           silent: true
