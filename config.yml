@@ -113,7 +113,7 @@ tasks:
         - emit_series: yes
       from:
         - rarbg:
-            category: x264 1080p
+            category: 41
         - kat:
             category: tv
 #        - torrentz: good
