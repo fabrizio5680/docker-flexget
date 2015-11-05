@@ -25,17 +25,9 @@ templates:
   inputs:
     magnets: true
     content_size:
-      min: 700
+      min: 500
       max: 10000
       strict: no
-    inputs:
-#      - rss: https://www.torrentbytes.net/rss.php?passkey=58f184cea1b3c5aa5e99054bdc64eaa1&username=smulhall&38&5&37&limit=200&SSL=1&direct=1
-      - rss:
-          url: 'http://www.torlock.com/television/rss.xml'
-          silent: true
-      - rss:
-          url: 'http://showrss.info/feeds/all.rss'
-          silent: true
   filters:
     regexp:
       reject:
@@ -76,13 +68,33 @@ templates:
         - '*.avi'
         - '*.mkv'
         - '*.mp4'
+  torrent:
+#    trasmission:
+#      path: ./temp/{{series_name}}
+#      content_filename: '{{series_name}} - {{series_id}}/{{series_name}} - {{series_id}} - {{quality}}'
+#      label: tvshows
+    download:
+      path: ./temp/{{series_name}}
 tasks:
-  tvshows:
+  get_series_begin:
     priority: 1
+    trakt_emit:
+      username: '{{ secrets.trakt.username }}'
+      password: '{{ secrets.trakt.password }}'
+      list: watchlist
+    accept_all: yes
+    set_series_begin: yes
+  tvshows:
+    priority: 2
     template:
       - inputs
       - filters
+      - torrent
     torrent_alive: yes
+    set:
+      path: ./temp/{{series_name}}
+      content_filename: '{{series_name}} - {{series_id}}/{{series_name}} - {{series_id}} - {{quality}}'
+      label: tvshows
     configure_series:
       from:
         trakt_list:
@@ -92,26 +104,16 @@ tasks:
           type: shows
           strip_dates: yes
       settings:
-        timeframe: 24 hours
-        quality: 720p webdl+ h264
-        target: 1080p webdl+ h264
-        upgrade: true
+        quality: 1080p hdtv+ h264
         identified_by: ep
 
-    set_series_begin: yes
 
     discover:
       what:
-        - trakt_emit:
-            username: '{{ secrets.trakt.username }}'
-            password: '{{ secrets.trakt.password }}'
-            list: watchlist
+        - emit_series: yes
       from:
         - rarbg:
             category: x264 1080p
         - kat:
             category: tv
-        - torrentz: good
-
-    download:
-      path: ./temp
+#        - torrentz: good
