@@ -23,7 +23,7 @@ templates:
       max_retries: 15
 
   inputs:
-    magnets: true
+    magnets: false
     content_size:
       min: 500
       max: 10000
