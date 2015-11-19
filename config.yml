@@ -1,6 +1,6 @@
 secrets: secrets.yml
 templates:
-  globals:
+  global:
     verify_ssl_certificates: false
     urlrewrite:
       torcache-https:
@@ -21,38 +21,37 @@ templates:
       retry_time: 10 seconds
       retry_time_multiplier: 1
       max_retries: 15
-
-  tv:
-    thetvdb_lookup: true
-    trakt_lookup: true
-    magnets: false
-    content_size:
-      min: 500
-      max: 10000
-      strict: no
-    pushbullet:
-      apikey: '{{ secrets.pushbullet.apikey }}'
-      title: '{{tvdb_series_name}} {{tvdb_ep_id}}'
-      body: ' {{title}}\nSize {{content_size}}MB\nRating {{tvdb_rating}}\nQuality {{quality}}'
-    download:
-      path: ./temp/{{series_name}}
-
-
-  movies:
-    magnets: false
-    content_size:
-      min: 1000
-      max: 10000
-      strict: no
-    imdb_lookup: yes
-    trakt_lookup: true
-    download:
-      path: ./temp/movies
-    #    pushbullet:
-    #      apikey: '{{ secrets.pushbullet.apikey }}'
-    #      title: '{{tmdb_name}} {{imdb_score}}'
-    #      body: 'Size: {{content_size}}MB'
-
+#  movies:
+#    movie_queue: accept
+#    set:
+#      label: movies
+#      movedone: "D:\\Movies\\"
+#      path: "D:\\Torrents\\Downloading"
+  inputs:
+    magnets: true
+    inputs:
+      - rss:
+          url: 'http://torrentz.eu/feed_verified?q=tv'
+          silent: true
+      - rss:
+          url: 'http://torrentz.me/feed_verified?q=tv'
+          silent: true
+      - rss:
+          url: 'http://www.torlock.com/television/rss.xml'
+          silent: true
+      - rss:
+          url: 'http://showrss.info/feeds/all.rss'
+          silent: true
+#  outputs:
+#    pushbullet:
+#      apikey: '{{ secrets.pushbullet.apikey }}'
+#      title: '{{tvdb_series_name}} {{tvdb_ep_id}}'
+#      body: |-
+#        {{title}}
+#
+#        Size {{content_size}}MB
+#        Rating {{tvdb_rating}}
+#        Quality {{quality}}
   filters:
     regexp:
       reject:
@@ -88,12 +87,21 @@ templates:
         - "\\bASAP\\b":
             from: title
         - the.day.of.the.doctor
+    content_size:
+      min: 500
+      max: 10000
+      strict: no
     content_filter:
       require:
         - '*.avi'
         - '*.mkv'
         - '*.mp4'
-
+  site-integrations:
+    thetvdb_lookup: true
+    trakt_lookup: true
+    trakt_add:
+      username: '{{ secrets.trakt.username }}'
+      list: '{{ secrets.trakt.collected_list }}'
   movie-queue-request:
     accept_all: true
     seen: local
@@ -102,17 +110,18 @@ templates:
     movie_queue: add
     trakt_list:
       username: '{{ secrets.trakt.username }}'
-      password: '{{ secrets.trakt.password }}'
-      list: watchlist
+      list: '{{ secrets.trakt.movie_list }}'
       type: movies
     imdb_list:
       list: watchlist
       user_id: '{{ secrets.imdb.user }}'
-
   movie_search_request:
     template: movies
-    movie_queue: accept
     torrent_alive: true
+    pushbullet:
+      apikey: '{{ secrets.pushbullet.apikey }}'
+      title: '{{tmdb_name}} {{imdb_score}}'
+      body: 'Size: {{content_size}}MB'
     discover:
       what:
         - emit_movie_queue: true
@@ -120,90 +129,90 @@ templates:
         - piratebay:
             category: highres movies
             sort_by: seeds
-#        - torrentz: verified
+        - torrentz: verified
         - rarbg:
             category: [46, 45, 44, 42, 17]
         - kat:
             category: movies
-
-#  torrent:
-#    trasmission:
-#      path: ./temp/{{series_name}}
-#      content_filename: '{{series_name}} - {{series_id}}/{{series_name}} - {{series_id}} - {{quality}}'
-#      label: tvshows
-
-#      TASKS
 tasks:
-
-# SET SERIES BEGIN
-#  get_series_begin:
-#    priority: 1
-#    trakt_emit:
-#      username: '{{ secrets.trakt.username }}'
-#      password: '{{ secrets.trakt.password }}'
-#      list: watchlist
-#    accept_all: yes
-#    set_series_begin: yes
-
-# DOWNLOAD SHOWS
-#  tvshows:
-#    priority: 2
-#    template:
-#      - filters
-#      - torrent
-#      - tv
-#    torrent_alive: yes
-#    set:
-#      path: ./temp/{{series_name}}
-#      content_filename: '{{series_name}} - {{series_id}}/{{series_name}} - {{series_id}} - {{quality}}'
-#      label: tvshows
-#    configure_series:
-#      from:
-#        trakt_list:
-#          username: '{{ secrets.trakt.username }}'
-#          password: '{{ secrets.trakt.password }}'
-#          list: watchlist
-#          type: shows
-#          strip_dates: yes
-#      settings:
-#        quality: 1080p h264
-#        identified_by: ep
-#
-#
-#    discover:
-#      what:
-#        - emit_series: yes
-#      from:
-#        - piratebay:
-#            category: "highres tv"
-#            sort_by: seeds
-#        - rarbg:
-#            category: 41
-#            use_tvdb: yes
-#        - kat:
-#            category: tv
-#        - torrentz: good
-
-# DOWNLOAD MOVIES
-  movie_queue:
-    priority: 4
-    template: movie-queue-request
-    disable: retry_failed
-
-  movie_search_1080p:
-    priority: 5
-    template: movie_search_request
-    quality: '1080p bluray !h265'
-
-  movie_search_720p:
-    priority: 6
-    template: movie_search_request
-    quality: '720p bluray !h265'
-    delay: 10 hours
-
-  movie_search_divx:
-    priority: 7
-    template: movie_search_request
-    quality: divx+
-    delay: 10 hours
-
+#  movie_queue:
+#    priority: 4
+#    template: movie-queue-request
+#    disable: retry_failed
+#  movie_search_1080p:
+#    priority: 5
+#    template: movie_search_request
+#    quality: '1080p bluray !h265'
+#    deluge:
+#      main_file_only: true
+#  movie_search_720p:
+#    priority: 6
+#    template: movie_search_request
+#    quality: '720p bluray !h265'
+#    delay: 10 hours
+#    deluge:
+#      main_file_only: true
+#  movie_search_divx:
+#    priority: 7
+#    template: movie_search_request
+#    quality: divx+
+#    delay: 10 hours
+#    deluge:
+#      main_file_only: true
+  tvshows:
+    priority: 1
+    make_rss:
+      file: flexget.rss
+      link:
+        - url
+    template:
+      - inputs
+      - filters
+      - site-integrations
+      - outputs
+    deluge:
+      main_file_only: true
+    set_series_begin: true
+    torrent_alive: true
+#    exists_series:
+#      - "D:\\TV Shows"
+#      - "D:\\Torrents"
+    discover:
+      what:
+        - emit_series:
+            backfill: true
+            from_start: true
+      from:
+        - rarbg:
+            category: 41
+            use_tvdb: yes
+        - kat:
+            category: tv
+        - torrentz: good
+        - piratebay:
+            category: highres tv
+            sort_by: date
+    series:
+      settings:
+        main:
+          upgrade: true
+          identified_by: ep
+          set:
+            label: tv-1080p
+            path: "./home/torrents/downloads"
+            movedone: "./home/torrents/complete"
+            content_filename: '{{series_name}} - {{series_id}}/{{series_name}} - {{series_id}} - {{quality}}'
+      main:
+        - Fargo:
+            begin: S02E01
+            timeframe: 24 hours
+            quality: 720p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '269613'
+        - The Following:
+            begin: S03E14
+            quality: 720p+
+            target: 1080p hdtv+ h264
+            set:
+              tvdb_id: '258744'
